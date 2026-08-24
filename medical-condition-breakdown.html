@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pneumonia | Medical Term Breakdown</title>
+  <style>
+    :root {
+      color: #183b56;
+      background: #f4f8fb;
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    main {
+      box-sizing: border-box;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+    }
+
+    .eyebrow {
+      margin: 0 0 0.25rem;
+      color: #55758d;
+      font-size: 0.85rem;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #0b5c75;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+    }
+
+    .intro {
+      margin: 0.75rem 0 2rem;
+      font-size: 1.2rem;
+    }
+
+    form {
+      margin-bottom: 1.5rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .merge-option {
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #c8dce7;
+      border-radius: 999px;
+      color: #183b56;
+      background: #fff;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .undo-button {
+      margin-top: 0.75rem;
+      background: #55758d;
+    }
+
+    .undo-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      flex: none;
+      margin: 0;
+      accent-color: #0b5c75;
+    }
+
+    input {
+      box-sizing: border-box;
+      min-width: 0;
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #8aaabd;
+      border-radius: 4px;
+      color: inherit;
+      font: inherit;
+    }
+
+    button {
+      padding: 0.75rem 1rem;
+      border: 0;
+      border-radius: 4px;
+      background: #0b5c75;
+      color: #fff;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #083f51;
+    }
+
+    section {
+      padding: 1.25rem;
+      border: 1px solid #c8dce7;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #183b56;
+      font-size: 1.25rem;
+    }
+
+    .term {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 1rem 0 1.5rem;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      font-weight: bold;
+    }
+
+    .segment-display {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .segment-label {
+      color: #55758d;
+      font-size: 0.65rem;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .part {
+      padding: 0.35rem 0.6rem;
+      border-radius: 4px;
+      background: #dceff4;
+      color: #0b5c75;
+    }
+
+    .unmatched {
+      padding: 0.35rem 0.6rem;
+      border-radius: 4px;
+      background: #f4e8d8;
+      color: #714b1e;
+    }
+
+    .vowel {
+      display: inline-block;
+      padding: 0.1rem 0.2rem;
+      border-radius: 3px;
+      background: #b9dfb5;
+      color: #245c2a;
+      line-height: 1.1;
+    }
+
+    .part .vowel {
+      margin-left: 0.05rem;
+    }
+
+    .guess {
+      color: #714b1e;
+      font-style: italic;
+    }
+
+    .override {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .override input {
+      width: 100%;
+      padding: 0.45rem;
+      border: 1px solid #c8a66a;
+      border-radius: 4px;
+      font: inherit;
+    }
+
+    .override select {
+      padding: 0.45rem;
+      border: 1px solid #c8a66a;
+      border-radius: 4px;
+      color: inherit;
+      background: #fff;
+      font: inherit;
+      font-size: 0.9rem;
+    }
+
+    .override button {
+      padding: 0.45rem 0.7rem;
+      white-space: nowrap;
+    }
+
+    .segment-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .segment-actions button {
+      padding: 0.35rem 0.55rem;
+      background: #55758d;
+      font-size: 0.85rem;
+    }
+
+    .structure-editor {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .editor-row {
+      display: grid;
+      grid-template-columns: minmax(90px, 1fr) minmax(120px, 1fr) minmax(120px, 2fr) auto;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .structure-editor input,
+    .structure-editor select,
+    .structure-editor button {
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    .type-picker {
+      position: relative;
+    }
+
+    .type-picker > button {
+      width: 100%;
+      padding: 0.65rem;
+      border: 1px solid #8aaabd;
+      border-radius: 4px;
+      color: #183b56;
+      background: #fff;
+      font: inherit;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    .type-menu {
+      position: absolute;
+      z-index: 2;
+      top: calc(100% + 0.25rem);
+      right: 0;
+      left: 0;
+      display: none;
+      padding: 0.25rem;
+      border: 1px solid #8aaabd;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(24, 59, 86, 0.15);
+      font-size: 0.85rem !important;
+      line-height: 1.2;
+    }
+
+    .type-picker.open .type-menu {
+      display: grid;
+      gap: 0.2rem;
+    }
+
+    .type-menu button {
+      padding: 0.45rem;
+      border: 0;
+      border-radius: 3px;
+      color: #183b56;
+      background: transparent;
+      font-family: Arial, sans-serif;
+      font-size: 0.85rem !important;
+      line-height: 1.2;
+      text-align: left;
+    }
+
+    .type-menu button:hover,
+    .type-menu button:focus {
+      background: #dceff4;
+    }
+
+    .editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .editor-actions button,
+    .remove-segment {
+      padding: 0.45rem 0.65rem;
+      background: #55758d;
+      font-size: 0.85rem;
+    }
+
+    .remove-segment {
+      background: #9a4f4f;
+    }
+
+    @media (max-width: 560px) {
+      .editor-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .editor-row input:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .segment-actions input {
+      width: 4.5rem;
+      padding: 0.35rem;
+      border: 1px solid #8aaabd;
+      border-radius: 4px;
+      font: inherit;
+    }
+
+    .plus {
+      color: #55758d;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #dce8ee;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #0b5c75;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .note {
+      margin-bottom: 0;
+      color: #55758d;
+    }
+
+    #status {
+      color: #55758d;
+    }
+
+    @media (max-width: 560px) {
+      .search-row {
+        flex-direction: column;
+      }
+
+      th,
+      td {
+        padding: 0.6rem 0.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Medical Term Breakdown</p>
+    <h1>Break Down a Medical Term</h1>
+    <p class="intro">Enter a completed medical term to see its word parts and definitions. The page can suggest and learn unknown parts.</p>
+
+    <form id="term-form">
+      <div class="search-row">
+        <label class="sr-only" for="term-input">Medical term</label>
+        <input id="term-input" type="search" value="pneumonia" placeholder="Try pneumonia or tachycardia" autocomplete="off">
+        <button type="submit">Break down</button>
+      </div>
+      <div class="options-row">
+        <label class="merge-option" for="merge-unknown">
+          <input id="merge-unknown" type="checkbox" checked>
+          Merge unrecognized strings
+        </label>
+        <label class="merge-option" for="edit-terms">
+          <input id="edit-terms" type="checkbox">
+          Edit definitions
+        </label>
+      </div>
+      <button id="undo-merge" class="undo-button" type="button" disabled>Undo last merge</button>
+    </form>
+
+    <section aria-labelledby="breakdown-heading">
+      <h2 id="breakdown-heading">Break the word apart</h2>
+      <div id="term-display" class="term" aria-live="polite"></div>
+      <p id="status" role="status">Ready</p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Part</th>
+            <th scope="col">Definition</th>
+          </tr>
+        </thead>
+        <tbody id="breakdown-rows"></tbody>
+      </table>
+      <p id="summary" class="note"></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector('#term-form');
+    const termInput = document.querySelector('#term-input');
+    const termDisplay = document.querySelector('#term-display');
+    const breakdownRows = document.querySelector('#breakdown-rows');
+    const status = document.querySelector('#status');
+    const summary = document.querySelector('#summary');
+    const mergeUnknownInput = document.querySelector('#merge-unknown');
+    const editTermsInput = document.querySelector('#edit-terms');
+    const manualBreakdowns = JSON.parse(localStorage.getItem('medicalTermBreakdowns') || '{}');
+    const mergeHistory = JSON.parse(localStorage.getItem('medicalTermMergeHistory') || '{}');
+    const undoMergeButton = document.querySelector('#undo-merge');
+    const wordParts = [
+      ['pneumon-', 'air, lung'], ['pneum-', 'air, lung'], ['tachy-', 'fast'],
+      ['chem-', 'chemistry'], ['chemo-', 'chemistry'], ['therapy', 'treatment'],
+      ['elect-', 'electrical activity'], ['electro-', 'electrical activity'],
+      ['cardi-', 'heart'], ['nephr-', 'kidney'], ['neuro-', 'nerve'],
+      ['neur-', 'nerve'], ['hepat-', 'liver'], ['derm-', 'skin'],
+      ['oste-', 'bone'], ['osseo-', 'bony'], ['arthr-', 'joint'], ['chondr-', 'cartilage'],
+      ['gastr-', 'stomach'], ['gastro-', 'stomach'], ['enter-', 'intestine'],
+      ['entero-', 'intestine'], ['laryng-', 'larynx (voice box)'],
+      ['laryngo-', 'larynx (voice box)'], ['my-', 'muscle'],
+      ['myo-', 'muscle'], ['angi-', 'blood vessel'], ['hem-', 'blood'],
+      ['hemat-', 'blood'], ['rhin-', 'nose'], ['rhino-', 'nose'], ['ot-', 'ear'],
+      ['oto-', 'ear'],
+      ['cholester-', 'cholesterol'], ['cholesterol', 'cholesterol'], ['sterol', 'fat-like substance'],
+      ['chole-', 'bile'], ['lipid', 'fat'], ['lipo-', 'fat'], ['adipo-', 'fat'],
+      ['gluco-', 'glucose, sugar'], ['glyco-', 'glucose, sugar'], ['sacchar-', 'sugar'],
+      ['protein', 'protein'], ['proteo-', 'protein'], ['amino-', 'amino acid'],
+      ['enzym-', 'enzyme'], ['enzymo-', 'enzyme'], ['hormone', 'hormone'], ['hormon-', 'hormone'],
+      ['immun-', 'immune system'], ['immuno-', 'immune system'], ['lympho-', 'lymph'],
+      ['cyt-', 'cell'], ['cyto-', 'cell'], ['nucle-', 'nucleus'], ['nucleo-', 'nucleus'],
+      ['gen-', 'origin or production'], ['geno-', 'origin or production'], ['chrom-', 'color'],
+      ['chromato-', 'color'], ['hist-', 'tissue'], ['histo-', 'tissue'], ['sarc-', 'flesh'],
+      ['sarco-', 'flesh'], ['carcin-', 'cancer'], ['carcino-', 'cancer'], ['onco-', 'tumor'],
+      ['necr-', 'death'], ['necro-', 'death'], ['myc-', 'fungus'], ['myco-', 'fungus'],
+      ['bacter-', 'bacteria'], ['bacterio-', 'bacteria'], ['vir-', 'virus'], ['viro-', 'virus'],
+      ['path-', 'disease'], ['patho-', 'disease'], ['toxic-', 'poison'], ['toxico-', 'poison'],
+      ['pharmaco-', 'drug, medicine'], ['phag-', 'eating'], ['phago-', 'eating'],
+      ['blast-', 'bud, germ'], ['blasto-', 'bud, germ'], ['plasm-', 'formation or substance'],
+      ['plasmo-', 'formation or substance'], ['morph-', 'shape'], ['morpho-', 'shape'],
+      ['electro-', 'electrical activity'], ['therm-', 'heat'], ['thermo-', 'heat'],
+      ['photo-', 'light'], ['phon-', 'sound'], ['radio-', 'radiation'], ['crypto-', 'hidden'],
+      ['scler-', 'hard'], ['sclero-', 'hardness'], ['sten-', 'narrow'], ['steno-', 'narrow'],
+      ['dilat-', 'widening'], ['dilato-', 'widening'], ['spasm-', 'spasm'], ['spasmo-', 'spasm'],
+      ['tromb-', 'blood clot'], ['thromb-', 'blood clot'], ['thrombo-', 'blood clot'],
+      ['ophthalm-', 'eye'], ['pneumo-', 'air, lung'], ['hyper-', 'above, beyond, excessive'],
+      ['hypo-', 'under, deficient'], ['brady-', 'slow'], ['micro-', 'small'],
+      ['macro-', 'large, long, big'], ['poly-', 'many, excessive'], ['mono-', 'one'],
+      ['bi-', 'two'], ['tri-', 'three'], ['anti-', 'against'],
+      ['dys-', 'difficult, abnormal'], ['mal-', 'bad, abnormal'], ['pseudo-', 'false'],
+      ['peri-', 'around'], ['endo-', 'within; inner'], ['ecto-', 'outer; outside'],
+      ['intra-', 'within'], ['inter-', 'between'], ['sub-', 'under'],
+      ['super-', 'above'], ['pre-', 'before, in front'], ['post-', 'behind, after'],
+      ['-ology', 'study of'], ['-logy', 'study of'], ['-itis', 'inflammation'],
+      ['-olemia', 'blood condition involving a substance'],
+      ['-ia', 'condition'], ['-osis', 'condition, usually abnormal'], ['-iasis', 'condition, formation of'],
+      ['-ism', 'condition or process'], ['-oma', 'tumor'], ['-emia', 'blood condition'],
+      ['-ac', 'pertaining to'], ['-blast', 'bud, germ'], ['-blasto', 'bud, germ'],
+      ['-blastic', 'bud, germ'], ['-cyte', 'cell'], ['-cytic', 'cell'],
+      ['-esthesio', 'sensation'], ['-ites', 'inflammation'], ['-sis', 'condition'],
+      ['-algia', 'pain'], ['-dynia', 'pain, swelling'], ['-odyn', 'pain'], ['-cele', 'bulge'],
+      ['-ectasis', 'expansion or dilation'], ['-emesis', 'vomiting'], ['-malacia', 'softening'],
+      ['-megaly', 'enlargement'], ['-penia', 'deficiency, lack of'], ['-sclerosis', 'hardening'],
+      ['-stasis', 'level, unchanging'], ['-spasm', 'muscle condition'], ['-taxis', 'movement'], ['-trophy', 'growth'],
+      ['-plasia', 'growth'], ['-plastic', 'growth'], ['-plegia', 'paralysis'], ['-praxia', 'movement'],
+      ['-pnea', 'breathing'], ['-phagia', 'eating, swallowing'], ['-phasia', 'speech'],
+      ['-poiesis', 'production'], ['-ptosis', 'falling, drooping'], ['-oid', 'resembling'],
+      ['-pathy', 'disease'], ['-lysis', 'break down, destruction, dissolving'], ['-lytic', 'break down, destruction, dissolving'],
+      ['-rrhea', 'flow or discharge'], ['-rrhage', 'bleeding'], ['-rrhaphy', 'suture'],
+      ['-ectomy', 'cut out, removal'], ['-centesis', 'surgical puncture to remove fluid'],
+      ['-desis', 'surgical binding'], ['-otomy', 'incision'], ['-ostomy', 'surgical opening'],
+      ['-pexy', 'surgical fixation'], ['-plasty', 'surgical reconstruction'], ['-opsy', 'visual examination'],
+      ['-gram', 'recording, written'], ['-graph', 'recording, written'], ['-graphy', 'recording, written'],
+      ['-meter', 'device used for measuring'], ['-metry', 'measurement of'],
+      ['-scopy', 'examine, for examining'], ['-scope', 'examine, for examining'],
+      ['-tomy', 'cutting; incision'], ['-tripsy', 'crushing'], ['-uria', 'in the urine'],
+      ['-ium', 'structure or tissue'], ['-ous', 'pertaining to'], ['-ity', 'pertaining to'],
+      ['-al', 'pertaining to'], ['-eal', 'pertaining to'], ['-ial', 'pertaining to']
+    ].map(([part, definition]) => ({ part, word: normalize(part), definition }));
+    const overrides = JSON.parse(localStorage.getItem('medicalTermOverrides') || '{}');
+
+    function normalize(value) {
+      return value.toLowerCase().replace(/[^a-z]/g, '');
+    }
+
+    function segmentTerm(term) {
+      if (manualBreakdowns[term]) {
+        return manualBreakdowns[term].map((segment) => ({
+          ...segment,
+          entry: segment.entry ? { ...segment.entry } : null
+        }));
+      }
+      const memo = new Map();
+      function solve(position) {
+        if (position === term.length) return { segments: [], score: 0 };
+        if (memo.has(position)) return memo.get(position);
+
+        const candidates = getMatchesAt(term, position).map((entry) => {
+          const next = solve(position + entry.word.length);
+          return {
+            segments: [{ text: term.slice(position, position + entry.word.length), entry }, ...next.segments],
+            score: next.score + entry.word.length * 1000 + entry.word.length ** 2 + (isSuffix(entry) ? 80 : 0)
+          };
+        });
+
+        getUnknownEnds(term, position).forEach((end) => {
+          const next = solve(end);
+          const text = term.slice(position, end);
+          candidates.push({
+            segments: [{ text, entry: null, guess: guessDefinition(text, term, position) }, ...next.segments],
+            score: next.score - text.length * 100
+          });
+        });
+
+        const best = candidates.sort((first, second) => second.score - first.score)[0];
+        memo.set(position, best);
+        return best;
+      }
+      const repaired = repairShortGuesses(solve(0).segments);
+      const merged = mergeUnknownInput.checked ? mergeUnknownSegments(repaired) : repaired;
+      return annotateLinkingVowels(merged);
+    }
+
+    function mergeUnknownSegments(segments) {
+      const merged = [];
+      segments.forEach((segment) => {
+        const previous = merged[merged.length - 1];
+        if (previous && !previous.entry && !previous.vowel && !segment.entry && !segment.vowel) {
+          previous.text += segment.text;
+          previous.guess = guessDefinition(previous.text, previous.text, 0);
+        } else {
+          merged.push({ ...segment });
+        }
+      });
+      return merged;
+    }
+
+    function annotateLinkingVowels(segments) {
+      return segments.map((segment, index) => {
+        const isVowel = !segment.entry && /^[aeiouy]$/.test(segment.text);
+        const betweenParts = segments[index - 1]?.entry && segments[index + 1]?.entry;
+        return isVowel && betweenParts
+          ? { ...segment, vowel: true, guess: 'linking vowel' }
+          : segment;
+      });
+    }
+
+    function repairShortGuesses(segments) {
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (let index = 0; index < segments.length; index += 1) {
+          const segment = segments[index];
+          if (segment.entry || segment.text.length > 2) continue;
+          const previous = segments[index - 1];
+          const next = segments[index + 1];
+          const combinations = [
+            { indexes: [index - 1, index], text: `${previous?.text || ''}${segment.text}` },
+            { indexes: [index, index + 1], text: `${segment.text}${next?.text || ''}` },
+            { indexes: [index - 1, index, index + 1], text: `${previous?.text || ''}${segment.text}${next?.text || ''}` }
+          ];
+          const match = combinations
+            .filter((combination) => combination.indexes.every((partIndex) => segments[partIndex]))
+            .map((combination) => ({ ...combination, entry: findExactPart(combination.text) }))
+            .filter((combination) => combination.entry)
+            .sort((first, second) => second.text.length - first.text.length)[0];
+          if (match) {
+            const firstIndex = Math.min(...match.indexes);
+            const lastIndex = Math.max(...match.indexes);
+            segments.splice(firstIndex, lastIndex - firstIndex + 1, {
+              text: match.text,
+              entry: match.entry
+            });
+            changed = true;
+            break;
+          }
+        }
+      }
+      return segments;
+    }
+
+    function findExactPart(text) {
+      const normalizedText = normalize(text);
+      return wordParts.find((entry) => entry.word === normalizedText);
+    }
+
+    function isSuffix(entry) {
+      return entry.part.trim().startsWith('-');
+    }
+
+    function getMatchesAt(term, position) {
+      return wordParts.filter((entry) => {
+        const endsTerm = position + entry.word.length === term.length;
+        return term.startsWith(entry.word, position) && (!isSuffix(entry) || endsTerm);
+      });
+    }
+
+    function getUnknownEnds(term, position) {
+      const ends = new Set([term.length]);
+      for (let end = position + 1; end < term.length; end += 1) {
+        const startsPart = getMatchesAt(term, end).length > 0;
+        const vowelBoundary = /[aeiouy]/.test(term[end - 1]);
+        if (startsPart || vowelBoundary) ends.add(end);
+      }
+      return [...ends].sort((first, second) => first - second);
+    }
+
+    function guessDefinition(text, term, position) {
+      const guesses = [
+        [/itis$/, 'inflammation'], [/emia$/, 'blood condition'], [/algia$/, 'pain'],
+        [/osis$/, 'condition'], [/oma$/, 'tumor'], [/pnea$/, 'breathing'],
+        [/megaly$/, 'enlargement'], [/ectomy$/, 'removal'], [/otomy$/, 'incision'],
+        [/ostomy$/, 'surgical opening'], [/scopy$/, 'examination'], [/pathy$/, 'disease'],
+        [/therapy$/, 'treatment'], [/cardi/, 'heart'], [/pneum/, 'air or lung'], [/nephr/, 'kidney'],
+        [/hepat/, 'liver'], [/derm/, 'skin'], [/oste/, 'bone'], [/arthr/, 'joint'],
+        [/gastr/, 'stomach'], [/neur/, 'nerve'], [/my/, 'muscle']
+      ];
+      const match = guesses.find(([pattern]) => pattern.test(text) || pattern.test(term.slice(position)));
+      return match ? match[1] : 'definition unknown';
+    }
+
+    function renderBreakdown() {
+      const term = normalize(termInput.value);
+      if (!term) {
+        undoMergeButton.disabled = true;
+        status.textContent = 'Enter a medical term to begin.';
+        termDisplay.replaceChildren();
+        breakdownRows.replaceChildren();
+        summary.textContent = '';
+        return;
+      }
+
+      const segments = segmentTerm(term);
+      undoMergeButton.disabled = !mergeHistory[term]?.length;
+      termDisplay.replaceChildren();
+      breakdownRows.replaceChildren();
+      const definitions = [];
+      let hasUnmatched = false;
+
+      let displayedPartCount = 0;
+      let lastDisplayedPart = null;
+      let lastSegmentLabel = null;
+      segments.forEach((segment, index) => {
+        if (segment.vowel) {
+          if (lastDisplayedPart) {
+            const vowel = document.createElement('span');
+            vowel.className = 'vowel';
+            vowel.textContent = segment.text;
+            vowel.title = 'Linking vowel';
+            lastDisplayedPart.append(vowel);
+            lastSegmentLabel.textContent += ' + linking vowel';
+          }
+          return;
+        }
+        const key = `${term}:${segment.text}`;
+        const savedOverride = getOverride(key);
+        const definition = savedOverride?.definition || segment.entry?.definition;
+        const savedType = savedOverride?.type;
+        if (displayedPartCount > 0) {
+          const plus = document.createElement('span');
+          plus.className = 'plus';
+          plus.textContent = '+';
+          termDisplay.append(plus);
+        }
+        const segmentDisplay = document.createElement('span');
+        segmentDisplay.className = 'segment-display';
+        const displayPart = document.createElement('span');
+        displayPart.className = definition ? 'part' : 'unmatched';
+        displayPart.textContent = segment.text;
+        const segmentLabel = document.createElement('span');
+        segmentLabel.className = 'segment-label';
+        segmentLabel.textContent = savedType || (segment.entry ? getPartType(segment.entry) : 'unknown');
+        segmentDisplay.append(displayPart, segmentLabel);
+        termDisplay.append(segmentDisplay);
+        lastDisplayedPart = displayPart;
+        lastSegmentLabel = segmentLabel;
+        displayedPartCount += 1;
+
+        const row = document.createElement('tr');
+        const partCell = document.createElement('td');
+        const definitionCell = document.createElement('td');
+        if (definition) {
+          partCell.textContent = segment.entry ? segment.entry.part : segment.text;
+          definitionCell.textContent = definition;
+          definitions.push(definition);
+          if (editTermsInput.checked) {
+            addDefinitionEditor(definitionCell, key, definition, segment.text, savedType || (segment.entry ? getPartType(segment.entry) : 'root'));
+          }
+        } else {
+          partCell.textContent = `${segment.text} (guessed)`.trim();
+          definitionCell.innerHTML = '';
+          const guess = document.createElement('span');
+          guess.className = 'guess';
+          guess.textContent = `Suggested: ${segment.guess}`;
+          definitionCell.append(guess);
+          if (!editTermsInput.checked) {
+            addDefinitionEditor(definitionCell, key, segment.guess, segment.text, 'root');
+          }
+          definitions.push(segment.guess);
+          hasUnmatched = true;
+        }
+        row.append(partCell, definitionCell);
+        breakdownRows.append(row);
+      });
+
+      status.textContent = `${segments.filter((segment) => segment.entry).length} recognized word part(s)`;
+      summary.textContent = hasUnmatched
+        ? 'Guessed parts are suggestions. Enter a definition and choose Use this to override one.'
+        : `Definitions combined: ${definitions.join(' + ')}.`;
+      if (editTermsInput.checked) addStructureEditor(term, segments);
+    }
+
+    function addStructureEditor(term, segments) {
+      termDisplay.replaceChildren();
+      const editor = document.createElement('div');
+      editor.className = 'structure-editor';
+      const workingSegments = segments.map((segment) => ({ ...segment }));
+
+      function renderEditorRows() {
+        editor.querySelectorAll('.editor-row').forEach((row) => row.remove());
+        workingSegments.forEach((segment, index) => {
+          const row = document.createElement('div');
+          row.className = 'editor-row';
+          const textInput = document.createElement('input');
+          textInput.value = segment.text;
+          textInput.setAttribute('aria-label', `Segment ${index + 1}`);
+          const type = segment.editorType || (segment.vowel ? 'linking vowel' : segment.entry ? getPartType(segment.entry) : 'root');
+          const typePicker = createTypePicker(type, `Type for segment ${index + 1}`, (nextType) => { segment.editorType = nextType; });
+          const definitionInput = document.createElement('input');
+          definitionInput.value = segment.editorDefinition || getOverride(`${term}:${segment.text}`)?.definition || segment.entry?.definition || segment.guess || '';
+          definitionInput.placeholder = 'Definition';
+          definitionInput.setAttribute('aria-label', `Definition for segment ${index + 1}`);
+          const removeButton = document.createElement('button');
+          removeButton.className = 'remove-segment';
+          removeButton.type = 'button';
+          removeButton.textContent = 'Remove';
+          removeButton.addEventListener('click', () => {
+            workingSegments.splice(index, 1);
+            renderEditorRows();
+          });
+          row.append(textInput, typePicker, definitionInput, removeButton);
+          editor.append(row);
+          textInput.addEventListener('input', () => { segment.text = normalize(textInput.value); });
+          definitionInput.addEventListener('input', () => { segment.editorDefinition = definitionInput.value; });
+        });
+      }
+
+      const actionBar = document.createElement('div');
+      actionBar.className = 'editor-actions';
+      ['Add prefix', 'Add root', 'Add suffix'].forEach((label) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+          workingSegments.push({ text: '', entry: null, guess: '', editorType: label.slice(4).toLowerCase(), editorDefinition: '' });
+          renderEditorRows();
+        });
+        actionBar.append(button);
+      });
+      const saveButton = document.createElement('button');
+      saveButton.type = 'button';
+      saveButton.textContent = 'Save breakdown';
+      saveButton.addEventListener('click', () => {
+        const normalizedParts = workingSegments.filter((segment) => segment.text).map((segment) => {
+          const text = normalize(segment.text);
+          const type = segment.editorType || (segment.vowel ? 'linking vowel' : segment.entry ? getPartType(segment.entry) : 'root');
+          const definition = segment.editorDefinition || segment.guess || guessDefinition(text, term, 0);
+          const knownEntry = findExactPart(text);
+          const entry = type === 'linking vowel' ? null : knownEntry
+            ? { ...knownEntry, definition: segment.editorDefinition || knownEntry.definition }
+            : {
+              part: type === 'prefix' ? `${text}-` : type === 'suffix' ? `-${text}` : text,
+              word: text,
+              definition
+            };
+          if (entry && segment.editorDefinition) entry.definition = definition;
+          return { text, entry, guess: definition, vowel: type === 'linking vowel', editorType: type, editorDefinition: segment.editorDefinition || '' };
+        });
+        if (!normalizedParts.length) return;
+        saveManualBreakdown(term, normalizedParts);
+        mergeHistory[term] = [];
+        localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
+        renderBreakdown();
+      });
+      actionBar.append(saveButton);
+      editor.append(actionBar);
+      renderEditorRows();
+      termDisplay.append(editor);
+    }
+
+    function getPartType(entry) {
+      const part = entry.part.trim();
+      if (part.startsWith('-')) return 'suffix';
+      if (part.endsWith('-')) return 'prefix';
+      return 'root';
+    }
+
+    function getOverride(key) {
+      const value = overrides[key];
+      if (!value) return null;
+      return typeof value === 'string' ? { definition: value, type: 'root' } : value;
+    }
+
+    function addDefinitionEditor(container, key, definition, part, type) {
+      const editor = document.createElement('div');
+      editor.className = 'override';
+      const input = document.createElement('input');
+      input.value = getOverride(key)?.definition || '';
+      input.placeholder = definition;
+      input.title = `Current definition: ${definition}`;
+      input.setAttribute('aria-label', `Definition for ${part}`);
+      let selectedType = type;
+      const typePicker = createTypePicker(type, `Type for ${part}`, (nextType) => { selectedType = nextType; });
+      const saveButton = document.createElement('button');
+      saveButton.type = 'button';
+      saveButton.textContent = 'Save';
+      saveButton.addEventListener('click', () => {
+        const nextDefinition = input.value.trim() || input.placeholder;
+        overrides[key] = { definition: nextDefinition, type: selectedType };
+        localStorage.setItem('medicalTermOverrides', JSON.stringify(overrides));
+        renderBreakdown();
+      });
+      editor.append(input, typePicker, saveButton);
+      container.append(document.createElement('br'), editor);
+    }
+
+    function createTypePicker(selectedType, label, onChange) {
+      const picker = document.createElement('div');
+      picker.className = 'type-picker';
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.textContent = selectedType[0].toUpperCase() + selectedType.slice(1);
+      toggle.setAttribute('aria-label', label);
+      toggle.setAttribute('aria-expanded', 'false');
+      const menu = document.createElement('div');
+      menu.className = 'type-menu';
+      ['prefix', 'root', 'suffix', 'linking vowel'].forEach((type) => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.textContent = type[0].toUpperCase() + type.slice(1);
+        option.addEventListener('click', () => {
+          toggle.textContent = option.textContent;
+          picker.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+          onChange(type);
+        });
+        menu.append(option);
+      });
+      toggle.addEventListener('click', () => {
+        const isOpen = picker.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+      });
+      picker.append(toggle, menu);
+      return picker;
+    }
+
+    function addSegmentActions(container, term, segments, index) {
+      const actions = document.createElement('div');
+      actions.className = 'segment-actions';
+      const choices = [
+        { label: 'Merge previous', offset: -1 },
+        { label: 'Merge next', offset: 1 }
+      ];
+      choices.forEach(({ label, offset }) => {
+        const adjacent = segments[index + offset];
+        if (!adjacent || adjacent.entry || adjacent.vowel) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+          saveMergeHistory(term, segments);
+          const first = Math.min(index, index + offset);
+          const second = Math.max(index, index + offset);
+          segments.splice(first, 2, {
+            text: segments[first].text + segments[second].text,
+            entry: null,
+            guess: guessDefinition(segments[first].text + segments[second].text, term, 0)
+          });
+          saveManualBreakdown(term, segments);
+          renderBreakdown();
+        });
+        actions.append(button);
+      });
+
+      if (segments[index].text.length > 1) {
+        const splitInput = document.createElement('input');
+        splitInput.type = 'number';
+        splitInput.min = '1';
+        splitInput.max = String(segments[index].text.length - 1);
+        splitInput.placeholder = 'Position';
+        splitInput.setAttribute('aria-label', `Split ${segments[index].text} after character`);
+        const splitButton = document.createElement('button');
+        splitButton.type = 'button';
+        splitButton.textContent = 'Split here';
+        splitButton.addEventListener('click', () => {
+          const splitAt = Number.parseInt(splitInput.value, 10);
+          if (!Number.isInteger(splitAt) || splitAt < 1 || splitAt >= segments[index].text.length) return;
+          const text = segments[index].text;
+          segments.splice(index, 1,
+            { text: text.slice(0, splitAt), entry: findExactPart(text.slice(0, splitAt)), guess: guessDefinition(text.slice(0, splitAt), term, 0) },
+            { text: text.slice(splitAt), entry: findExactPart(text.slice(splitAt)), guess: guessDefinition(text.slice(splitAt), term, splitAt) }
+          );
+          saveManualBreakdown(term, segments);
+          renderBreakdown();
+        });
+        actions.append(splitInput, splitButton);
+      }
+      if (!segments[index].entry) {
+        const vowelButton = document.createElement('button');
+        vowelButton.type = 'button';
+        vowelButton.textContent = 'Mark as linking vowel';
+        vowelButton.addEventListener('click', () => {
+          segments[index].vowel = true;
+          segments[index].guess = 'linking vowel';
+          saveManualBreakdown(term, segments);
+          renderBreakdown();
+        });
+        actions.append(vowelButton);
+      }
+      container.append(actions);
+    }
+
+    function saveManualBreakdown(term, segments) {
+      manualBreakdowns[term] = segments.map((segment) => ({
+        text: segment.text,
+        entry: segment.entry ? { ...segment.entry } : null,
+        guess: segment.guess,
+        vowel: Boolean(segment.vowel)
+      }));
+      localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
+    }
+
+    function saveMergeHistory(term, segments) {
+      if (!mergeHistory[term]) mergeHistory[term] = [];
+      mergeHistory[term].push(segments.map((segment) => ({
+        text: segment.text,
+        entry: segment.entry ? { ...segment.entry } : null,
+        guess: segment.guess,
+        vowel: Boolean(segment.vowel)
+      })));
+      localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
+    }
+
+    function undoLastMerge() {
+      const term = normalize(termInput.value);
+      const history = mergeHistory[term];
+      if (!history?.length) return;
+      manualBreakdowns[term] = history.pop();
+      localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
+      localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
+      renderBreakdown();
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      renderBreakdown();
+    });
+    mergeUnknownInput.addEventListener('change', renderBreakdown);
+    editTermsInput.addEventListener('change', renderBreakdown);
+    undoMergeButton.addEventListener('click', undoLastMerge);
+
+    status.textContent = `${wordParts.length} built-in word parts ready`;
+    renderBreakdown();
+  </script>
+</body>
+</html>
