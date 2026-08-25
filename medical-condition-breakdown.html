@@ -86,6 +86,37 @@
       margin-top: 0.75rem;
     }
 
+    .file-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border: 1px solid #c8dce7;
+      border-radius: 8px;
+      background: #eef6f8;
+    }
+
+    .file-tools button {
+      padding: 0.5rem 0.75rem;
+      background: #55758d;
+      font-size: 0.9rem;
+    }
+
+    .file-tools input[type="file"] {
+      flex: 1 1 12rem;
+      padding: 0.35rem;
+      border: 1px solid #8aaabd;
+      background: #fff;
+      font-size: 0.9rem;
+    }
+
+    .file-tools small {
+      flex-basis: 100%;
+      color: #55758d;
+    }
+
     input[type="checkbox"] {
       width: auto;
       flex: none;
@@ -402,6 +433,7 @@
         <label class="sr-only" for="term-input">Medical term</label>
         <input id="term-input" type="search" value="pneumonia" placeholder="Try pneumonia or tachycardia" autocomplete="off">
         <button type="submit">Break down</button>
+        <button id="speak-term" type="button">Speak</button>
       </div>
       <div class="options-row">
         <label class="merge-option" for="merge-unknown">
@@ -430,6 +462,13 @@
       </table>
       <p id="summary" class="note"></p>
     </section>
+
+    <div class="file-tools">
+      <label for="word-file">Vocabulary file</label>
+      <input id="word-file" type="file" accept=".txt,.json,text/plain,application/json">
+      <button id="load-word-file" type="button">Load database</button>
+      <button id="save-word-file" type="button">Download database</button>
+    </div>
   </main>
 
   <script>
@@ -439,8 +478,12 @@
     const breakdownRows = document.querySelector('#breakdown-rows');
     const status = document.querySelector('#status');
     const summary = document.querySelector('#summary');
+    const speakTermButton = document.querySelector('#speak-term');
     const mergeUnknownInput = document.querySelector('#merge-unknown');
     const editTermsInput = document.querySelector('#edit-terms');
+    const wordFileInput = document.querySelector('#word-file');
+    const loadWordFileButton = document.querySelector('#load-word-file');
+    const saveWordFileButton = document.querySelector('#save-word-file');
     const manualBreakdowns = JSON.parse(localStorage.getItem('medicalTermBreakdowns') || '{}');
     const wordParts = [
       ['pneumon-', 'air, lung'], ['pneum-', 'air, lung'], ['tachy-', 'fast'],
@@ -527,7 +570,8 @@
       ['ulno-', 'ulna, forearm bone'], ['carp-', 'wrist bones'], ['carpo-', 'wrist bones'],
       ['osteoblast-', 'bone-forming cell'], ['osteoclast-', 'bone-resorbing cell'], ['synov-', 'joint lining fluid'],
       ['synovi-', 'joint lining fluid'], ['menisc-', 'crescent-shaped cartilage'], ['menisco-', 'crescent-shaped cartilage'],
-      ['cartilag-', 'cartilage'], ['cartilago-', 'cartilage'],
+      ['cartilag-', 'cartilage'], ['cartilago-', 'cartilage'], ['clast-', 'breaking or breaking down'],
+      ['vascul-', 'blood vessel'], ['vasculo-', 'blood vessel'],
       ['cholester-', 'cholesterol'], ['cholesterol', 'cholesterol'], ['sterol', 'fat-like substance'],
       ['chole-', 'bile'], ['lipid', 'fat'], ['lipo-', 'fat'], ['adipo-', 'fat'],
       ['gluco-', 'glucose, sugar'], ['glyco-', 'glucose, sugar'], ['sacchar-', 'sugar'],
@@ -628,12 +672,117 @@
       ['-scopy', 'examine, for examining'], ['-scope', 'examine, for examining'],
       ['-tomy', 'cutting; incision'], ['-tripsy', 'crushing'], ['-uria', 'in the urine'],
       ['-ium', 'structure or tissue'], ['-ous', 'pertaining to'], ['-ity', 'pertaining to'],
-      ['-al', 'pertaining to'], ['-eal', 'pertaining to'], ['-ial', 'pertaining to']
+      ['-al', 'pertaining to'], ['-eal', 'pertaining to'], ['-ial', 'pertaining to'], ['-ic', 'pertaining to']
     ].map(([part, definition]) => ({ part, word: normalize(part), definition }));
     const overrides = JSON.parse(localStorage.getItem('medicalTermOverrides') || '{}');
+    let wordFileHandle = null;
+    let externalWordParts = [];
 
     function normalize(value) {
       return value.toLowerCase().replace(/[^a-z]/g, '');
+    }
+
+    function speakTerm() {
+      const spokenTerm = termInput.value.trim();
+      if (!spokenTerm) return;
+      if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+        status.textContent = 'Speech is not available in this browser.';
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(spokenTerm);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.78;
+      utterance.pitch = 1;
+      utterance.onstart = () => { status.textContent = `Reading: ${spokenTerm}`; };
+      utterance.onend = () => { status.textContent = 'Finished reading.'; };
+      utterance.onerror = () => { status.textContent = 'The browser could not read this term.'; };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function getWordBoundaries(value) {
+      const boundaries = new Set();
+      let position = 0;
+      value.split(/[^a-z]+/i).filter(Boolean).forEach((word, index) => {
+        if (index > 0) boundaries.add(position);
+        position += normalize(word).length;
+      });
+      return boundaries;
+    }
+
+    function parseWordFile(text) {
+      try {
+        const parsed = JSON.parse(text);
+        const entries = Array.isArray(parsed) ? parsed : Object.entries(parsed).map(([part, definition]) => ({ part, definition }));
+        return entries
+          .map((entry) => ({ part: String(entry.part || entry.word || '').trim(), definition: String(entry.definition || '').trim() }))
+          .filter((entry) => entry.part && entry.definition);
+      } catch (error) {
+        return text.split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => line && !line.startsWith('#'))
+          .map((line) => line.split(/\t|\s{2,}|\s+-\s+/))
+          .filter((columns) => columns.length >= 2 && columns[0].trim() && columns.slice(1).join(' ').trim())
+          .map(([part, ...definition]) => ({ part: part.trim(), definition: definition.join(' ').trim() }));
+      }
+    }
+
+    function addExternalWordParts(entries) {
+      externalWordParts = entries.map(({ part, definition }) => ({
+        part,
+        word: normalize(part),
+        definition
+      }));
+      externalWordParts.forEach((entry) => {
+        const existingIndex = wordParts.findIndex((candidate) => candidate.word === entry.word);
+        if (existingIndex >= 0) wordParts[existingIndex] = entry;
+        else wordParts.push(entry);
+      });
+    }
+
+    function getWordFileText() {
+      const entries = new Map();
+      wordParts.forEach((entry) => entries.set(entry.word, { part: entry.part, definition: entry.definition }));
+      externalWordParts.forEach((entry) => entries.set(entry.word, { part: entry.part, definition: entry.definition }));
+      Object.values(manualBreakdowns).flat().forEach((segment) => {
+        if (!segment.entry?.word || !segment.entry.definition || segment.vowel) return;
+        entries.set(segment.entry.word, { part: segment.entry.part, definition: segment.entry.definition });
+      });
+      Object.entries(overrides).forEach(([key, value]) => {
+        const [term, segment] = key.split(':');
+        const override = getOverride(key);
+        if (!segment || !override?.definition) return;
+        const part = override.type === 'prefix' ? `${segment}-` : override.type === 'suffix' ? `-${segment}` : segment;
+        entries.set(normalize(part), { part, definition: override.definition });
+      });
+      return [...entries.values()]
+        .sort((first, second) => normalize(first.part).localeCompare(normalize(second.part)))
+        .map(({ part, definition }) => `${part}\t${definition}`)
+        .join('\n') + '\n';
+    }
+
+    async function writeWordFile() {
+      const text = getWordFileText();
+      if (wordFileHandle) {
+        const writable = await wordFileHandle.createWritable();
+        await writable.write(text);
+        await writable.close();
+        status.textContent = 'Vocabulary file updated.';
+        return;
+      }
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+      link.download = 'medical-word-parts.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      status.textContent = 'Updated vocabulary downloaded as medical-word-parts.txt.';
+    }
+
+    async function loadWordFile(file) {
+      if (!file) return;
+      addExternalWordParts(parseWordFile(await file.text()));
+      renderBreakdown();
+      status.textContent = `${externalWordParts.length} word part(s) loaded from ${file.name}.`;
     }
 
     function segmentTerm(term) {
@@ -806,10 +955,12 @@
       }
 
       const segments = segmentTerm(term);
+      const wordBoundaries = getWordBoundaries(termInput.value);
       termDisplay.replaceChildren();
       breakdownRows.replaceChildren();
       const definitions = [];
       let hasUnmatched = false;
+      let renderedTermLength = 0;
 
       let displayedPartCount = 0;
       let lastDisplayedPart = null;
@@ -824,6 +975,7 @@
             lastDisplayedPart.append(vowel);
             lastSegmentLabel.textContent += ' + linking vowel';
           }
+          renderedTermLength += segment.text.length;
           return;
         }
         const key = `${term}:${segment.text}`;
@@ -834,7 +986,7 @@
         if (displayedPartCount > 0) {
           const plus = document.createElement('span');
           plus.className = 'plus';
-          plus.textContent = '+';
+          plus.textContent = wordBoundaries.has(renderedTermLength) ? ' ' : '+';
           termDisplay.append(plus);
         }
         const segmentDisplay = document.createElement('span');
@@ -850,6 +1002,7 @@
         lastDisplayedPart = displayPart;
         lastSegmentLabel = segmentLabel;
         displayedPartCount += 1;
+        renderedTermLength += segment.text.length;
 
         const row = document.createElement('tr');
         const partCell = document.createElement('td');
@@ -1006,11 +1159,18 @@
       const saveButton = document.createElement('button');
       saveButton.type = 'button';
       saveButton.textContent = 'Save';
-      saveButton.addEventListener('click', () => {
+      saveButton.addEventListener('click', async () => {
         const nextDefinition = input.value.trim() || input.placeholder;
         overrides[key] = { definition: nextDefinition, type: selectedType };
         localStorage.setItem('medicalTermOverrides', JSON.stringify(overrides));
         renderBreakdown();
+        if (wordFileHandle) {
+          try {
+            await writeWordFile();
+          } catch (error) {
+            status.textContent = 'Saved locally, but the vocabulary file could not be updated.';
+          }
+        }
       });
       editor.append(input, typePicker, saveButton);
       container.append(document.createElement('br'), editor);
@@ -1120,14 +1280,44 @@
         editorType: segment.editorType || null
       }));
       localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
+      if (wordFileHandle) {
+        writeWordFile().catch(() => {
+          status.textContent = 'Saved locally, but the vocabulary file could not be updated.';
+        });
+      }
     }
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       renderBreakdown();
+      speakTerm();
     });
+    speakTermButton.addEventListener('click', speakTerm);
     mergeUnknownInput.addEventListener('change', renderBreakdown);
     editTermsInput.addEventListener('change', renderBreakdown);
+    wordFileInput.addEventListener('change', () => loadWordFile(wordFileInput.files[0]));
+    loadWordFileButton.addEventListener('click', async () => {
+      if (window.showOpenFilePicker) {
+        try {
+          [wordFileHandle] = await window.showOpenFilePicker({
+            types: [{ description: 'Medical word parts', accept: { 'text/plain': ['.txt'], 'application/json': ['.json'] } }],
+            multiple: false
+          });
+          await loadWordFile(await wordFileHandle.getFile());
+          return;
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+        }
+      }
+      wordFileInput.click();
+    });
+    saveWordFileButton.addEventListener('click', async () => {
+      try {
+        await writeWordFile();
+      } catch (error) {
+        status.textContent = 'Could not update the vocabulary file.';
+      }
+    });
 
     status.textContent = `${wordParts.length} built-in word parts ready`;
     renderBreakdown();
