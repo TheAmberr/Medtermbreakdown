@@ -1,4 +1,4 @@
-<!doctype html>
+it<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -265,16 +265,19 @@
 
     .type-picker {
       position: relative;
+      align-self: stretch;
     }
 
     .type-picker > button {
       width: 100%;
-      padding: 0.65rem;
+      height: 100%;
+      padding: 0.75rem;
       border: 1px solid #8aaabd;
       border-radius: 4px;
       color: #183b56;
       background: #fff;
       font: inherit;
+      font-size: 0.85rem !important;
       font-weight: bold;
       text-align: left;
     }
@@ -699,6 +702,7 @@
         const savedOverride = getOverride(key);
         const definition = savedOverride?.definition || segment.entry?.definition;
         const savedType = savedOverride?.type;
+        const segmentType = savedType || getSegmentType(segments, index);
         if (displayedPartCount > 0) {
           const plus = document.createElement('span');
           plus.className = 'plus';
@@ -712,7 +716,7 @@
         displayPart.textContent = segment.text;
         const segmentLabel = document.createElement('span');
         segmentLabel.className = 'segment-label';
-        segmentLabel.textContent = savedType || (segment.entry ? getPartType(segment.entry) : 'unknown');
+        segmentLabel.textContent = segmentType;
         segmentDisplay.append(displayPart, segmentLabel);
         termDisplay.append(segmentDisplay);
         lastDisplayedPart = displayPart;
@@ -727,7 +731,7 @@
           definitionCell.textContent = definition;
           definitions.push(definition);
           if (editTermsInput.checked) {
-            addDefinitionEditor(definitionCell, key, definition, segment.text, savedType || (segment.entry ? getPartType(segment.entry) : 'root'));
+            addDefinitionEditor(definitionCell, key, definition, segment.text, segmentType);
           }
         } else {
           partCell.textContent = `${segment.text} (guessed)`.trim();
@@ -737,7 +741,7 @@
           guess.textContent = `Suggested: ${segment.guess}`;
           definitionCell.append(guess);
           if (!editTermsInput.checked) {
-            addDefinitionEditor(definitionCell, key, segment.guess, segment.text, 'root');
+            addDefinitionEditor(definitionCell, key, segment.guess, segment.text, segmentType);
           }
           definitions.push(segment.guess);
           hasUnmatched = true;
@@ -767,7 +771,7 @@
           const textInput = document.createElement('input');
           textInput.value = segment.text;
           textInput.setAttribute('aria-label', `Segment ${index + 1}`);
-          const type = segment.editorType || (segment.vowel ? 'linking vowel' : segment.entry ? getPartType(segment.entry) : 'root');
+          const type = segment.editorType || getSegmentType(workingSegments, index);
           const typePicker = createTypePicker(type, `Type for segment ${index + 1}`, (nextType) => { segment.editorType = nextType; });
           const definitionInput = document.createElement('input');
           definitionInput.value = segment.editorDefinition || getOverride(`${term}:${segment.text}`)?.definition || segment.entry?.definition || segment.guess || '';
@@ -804,9 +808,9 @@
       saveButton.type = 'button';
       saveButton.textContent = 'Save breakdown';
       saveButton.addEventListener('click', () => {
-        const normalizedParts = workingSegments.filter((segment) => segment.text).map((segment) => {
+        const normalizedParts = workingSegments.filter((segment) => segment.text).map((segment, index) => {
           const text = normalize(segment.text);
-          const type = segment.editorType || (segment.vowel ? 'linking vowel' : segment.entry ? getPartType(segment.entry) : 'root');
+          const type = segment.editorType || getSegmentType(workingSegments, index);
           const definition = segment.editorDefinition || segment.guess || guessDefinition(text, term, 0);
           const knownEntry = findExactPart(text);
           const entry = type === 'linking vowel' ? null : knownEntry
@@ -835,6 +839,19 @@
       const part = entry.part.trim();
       if (part.startsWith('-')) return 'suffix';
       if (part.endsWith('-')) return 'prefix';
+      return 'root';
+    }
+
+    function getSegmentType(segments, index) {
+      const segment = segments[index];
+      if (segment.editorType) return segment.editorType;
+      if (segment.vowel) return 'linking vowel';
+      const partIndexes = segments
+        .map((candidate, candidateIndex) => candidate.vowel ? -1 : candidateIndex)
+        .filter((candidateIndex) => candidateIndex >= 0);
+      if (partIndexes.length === 1) return 'root';
+      if (index === partIndexes[0]) return 'prefix';
+      if (index === partIndexes[partIndexes.length - 1]) return 'suffix';
       return 'root';
     }
 
@@ -968,7 +985,8 @@
         text: segment.text,
         entry: segment.entry ? { ...segment.entry } : null,
         guess: segment.guess,
-        vowel: Boolean(segment.vowel)
+        vowel: Boolean(segment.vowel),
+        editorType: segment.editorType || null
       }));
       localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
     }
@@ -979,7 +997,8 @@
         text: segment.text,
         entry: segment.entry ? { ...segment.entry } : null,
         guess: segment.guess,
-        vowel: Boolean(segment.vowel)
+        vowel: Boolean(segment.vowel),
+        editorType: segment.editorType || null
       })));
       localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
     }
