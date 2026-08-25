@@ -86,16 +86,6 @@ it<!doctype html>
       margin-top: 0.75rem;
     }
 
-    .undo-button {
-      margin-top: 0.75rem;
-      background: #55758d;
-    }
-
-    .undo-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     input[type="checkbox"] {
       width: auto;
       flex: none;
@@ -423,7 +413,6 @@ it<!doctype html>
           Edit definitions
         </label>
       </div>
-      <button id="undo-merge" class="undo-button" type="button" disabled>Undo last merge</button>
     </form>
 
     <section aria-labelledby="breakdown-heading">
@@ -453,8 +442,6 @@ it<!doctype html>
     const mergeUnknownInput = document.querySelector('#merge-unknown');
     const editTermsInput = document.querySelector('#edit-terms');
     const manualBreakdowns = JSON.parse(localStorage.getItem('medicalTermBreakdowns') || '{}');
-    const mergeHistory = JSON.parse(localStorage.getItem('medicalTermMergeHistory') || '{}');
-    const undoMergeButton = document.querySelector('#undo-merge');
     const wordParts = [
       ['pneumon-', 'air, lung'], ['pneum-', 'air, lung'], ['tachy-', 'fast'],
       ['chem-', 'chemistry'], ['chemo-', 'chemistry'], ['therapy', 'treatment'],
@@ -668,7 +655,6 @@ it<!doctype html>
     function renderBreakdown() {
       const term = normalize(termInput.value);
       if (!term) {
-        undoMergeButton.disabled = true;
         status.textContent = 'Enter a medical term to begin.';
         termDisplay.replaceChildren();
         breakdownRows.replaceChildren();
@@ -677,7 +663,6 @@ it<!doctype html>
       }
 
       const segments = segmentTerm(term);
-      undoMergeButton.disabled = !mergeHistory[term]?.length;
       termDisplay.replaceChildren();
       breakdownRows.replaceChildren();
       const definitions = [];
@@ -825,8 +810,6 @@ it<!doctype html>
         });
         if (!normalizedParts.length) return;
         saveManualBreakdown(term, normalizedParts);
-        mergeHistory[term] = [];
-        localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
         renderBreakdown();
       });
       actionBar.append(saveButton);
@@ -928,7 +911,6 @@ it<!doctype html>
         button.type = 'button';
         button.textContent = label;
         button.addEventListener('click', () => {
-          saveMergeHistory(term, segments);
           const first = Math.min(index, index + offset);
           const second = Math.max(index, index + offset);
           segments.splice(first, 2, {
@@ -991,35 +973,12 @@ it<!doctype html>
       localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
     }
 
-    function saveMergeHistory(term, segments) {
-      if (!mergeHistory[term]) mergeHistory[term] = [];
-      mergeHistory[term].push(segments.map((segment) => ({
-        text: segment.text,
-        entry: segment.entry ? { ...segment.entry } : null,
-        guess: segment.guess,
-        vowel: Boolean(segment.vowel),
-        editorType: segment.editorType || null
-      })));
-      localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
-    }
-
-    function undoLastMerge() {
-      const term = normalize(termInput.value);
-      const history = mergeHistory[term];
-      if (!history?.length) return;
-      manualBreakdowns[term] = history.pop();
-      localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
-      localStorage.setItem('medicalTermMergeHistory', JSON.stringify(mergeHistory));
-      renderBreakdown();
-    }
-
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       renderBreakdown();
     });
     mergeUnknownInput.addEventListener('change', renderBreakdown);
     editTermsInput.addEventListener('change', renderBreakdown);
-    undoMergeButton.addEventListener('click', undoLastMerge);
 
     status.textContent = `${wordParts.length} built-in word parts ready`;
     renderBreakdown();
