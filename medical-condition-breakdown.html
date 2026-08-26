@@ -435,16 +435,6 @@
         <button type="submit">Break down</button>
         <button id="speak-term" type="button">Speak</button>
       </div>
-      <div class="options-row">
-        <label class="merge-option" for="merge-unknown">
-          <input id="merge-unknown" type="checkbox" checked>
-          Merge unrecognized strings
-        </label>
-        <label class="merge-option" for="edit-terms">
-          <input id="edit-terms" type="checkbox">
-          Edit definitions
-        </label>
-      </div>
     </form>
 
     <section aria-labelledby="breakdown-heading">
@@ -463,14 +453,9 @@
       <p id="summary" class="note"></p>
     </section>
 
-    <div class="file-tools">
-      <label for="word-file">Vocabulary file</label>
-      <input id="word-file" type="file" accept=".txt,.json,text/plain,application/json">
-      <button id="load-word-file" type="button">Load database</button>
-      <button id="save-word-file" type="button">Download database</button>
-    </div>
   </main>
 
+  <script src="medical-word-parts.js"></script>
   <script>
     const form = document.querySelector('#term-form');
     const termInput = document.querySelector('#term-input');
@@ -479,204 +464,7 @@
     const status = document.querySelector('#status');
     const summary = document.querySelector('#summary');
     const speakTermButton = document.querySelector('#speak-term');
-    const mergeUnknownInput = document.querySelector('#merge-unknown');
-    const editTermsInput = document.querySelector('#edit-terms');
-    const wordFileInput = document.querySelector('#word-file');
-    const loadWordFileButton = document.querySelector('#load-word-file');
-    const saveWordFileButton = document.querySelector('#save-word-file');
-    const manualBreakdowns = JSON.parse(localStorage.getItem('medicalTermBreakdowns') || '{}');
-    const wordParts = [
-      ['pneumon-', 'air, lung'], ['pneum-', 'air, lung'], ['tachy-', 'fast'],
-      ['chem-', 'chemistry'], ['chemo-', 'chemistry'], ['therapy', 'treatment'],
-      ['elect-', 'electrical activity'], ['electro-', 'electrical activity'],
-      ['cardi-', 'heart'], ['nephr-', 'kidney'], ['neuro-', 'nerve'],
-      ['neur-', 'nerve'], ['hepat-', 'liver'], ['derm-', 'skin'],
-      ['oste-', 'bone'], ['osseo-', 'bony'], ['arthr-', 'joint'], ['chondr-', 'cartilage'],
-      ['gastr-', 'stomach'], ['gastro-', 'stomach'], ['enter-', 'intestine'],
-      ['entero-', 'intestine'], ['laryng-', 'larynx (voice box)'],
-      ['laryngo-', 'larynx (voice box)'], ['my-', 'muscle'],
-      ['myo-', 'muscle'], ['angi-', 'blood vessel'], ['hem-', 'blood'],
-      ['hemat-', 'blood'], ['rhin-', 'nose'], ['rhino-', 'nose'], ['ot-', 'ear'],
-      ['oto-', 'ear'],
-      ['tendon-', 'tendon'], ['tendin-', 'tendon'], ['teno-', 'tendon'],
-      ['ligament-', 'ligament'], ['fasci-', 'fascia'],
-      ['fascio-', 'fascia'], ['burs-', 'bursa'], ['burso-', 'bursa'], ['rhabdomy-', 'skeletal muscle'],
-      ['rhabdo-', 'striated or skeletal muscle'], ['sarcomer-', 'muscle fiber unit'],
-      ['axon-', 'nerve fiber'], ['axono-', 'nerve fiber'], ['dendr-', 'branch of a nerve cell'],
-      ['dendro-', 'branch of a nerve cell'], ['gangli-', 'nerve cell cluster'], ['ganglio-', 'nerve cell cluster'],
-      ['gli-', 'glial tissue'], ['glio-', 'glial tissue'], ['radicul-', 'nerve root'],
-      ['radiculo-', 'nerve root'], ['sciat-', 'sciatic nerve'], ['vag-', 'vagus nerve'],
-      ['autonom-', 'involuntary nervous system'], ['sympath-', 'sympathetic nervous system'],
-      ['cephal-', 'head'], ['cephalo-', 'head'], ['cerebr-', 'cerebrum, brain'],
-      ['cerebell-', 'cerebellum'], ['encephal-', 'brain'], ['encephalo-', 'brain'],
-      ['crani-', 'skull'], ['cranio-', 'skull'], ['mening-', 'meninges'], ['meningo-', 'meninges'],
-      ['myel-', 'spinal cord or bone marrow'], ['myelo-', 'spinal cord or bone marrow'],
-      ['vertebr-', 'vertebra, spinal column'], ['vertebro-', 'vertebra, spinal column'],
-      ['cervic-', 'neck or cervix'], ['cervico-', 'neck or cervix'], ['thorax', 'chest cavity'],
-      ['thorac-', 'chest'],
-      ['thoraco-', 'chest'], ['cost-', 'rib'], ['costo-', 'rib'], ['stern-', 'breastbone'],
-      ['sterno-', 'breastbone'], ['scapul-', 'shoulder blade'], ['scapulo-', 'shoulder blade'],
-      ['clavicul-', 'collarbone'], ['claviculo-', 'collarbone'], ['axill-', 'armpit'],
-      ['axillo-', 'armpit'], ['pect-', 'chest'], ['pecto-', 'chest'], ['mamm-', 'breast'],
-      ['mammo-', 'breast'], ['dors-', 'back'], ['dorso-', 'back'], ['lumb-', 'lower back'],
-      ['lumbo-', 'lower back'], ['sacr-', 'sacrum'], ['sacro-', 'sacrum'], ['cocc-', 'tailbone'],
-      ['coccyg-', 'tailbone'], ['pelv-', 'pelvis'], ['pelvi-', 'pelvis'], ['abdomin-', 'abdomen'],
-      ['abdomino-', 'abdomen'], ['inguin-', 'groin'], ['inguino-', 'groin'],
-      ['cecum', 'cecum'], ['cecal-', 'cecum'], ['append-', 'appendix'], ['appendico-', 'appendix'],
-      ['esophag-', 'esophagus'], ['esophago-', 'esophagus'], ['pharyng-', 'pharynx'],
-      ['pharyngo-', 'pharynx'], ['oropharyng-', 'mouth and pharynx'], ['oropharyngo-', 'mouth and pharynx'],
-      ['duoden-', 'duodenum'], ['duodeno-', 'duodenum'], ['jejun-', 'jejunum'], ['jejuno-', 'jejunum'],
-      ['ile-', 'ileum'], ['ileo-', 'ileum'], ['col-', 'colon'], ['colo-', 'colon'],
-      ['rect-', 'rectum'], ['recto-', 'rectum'], ['proct-', 'anus and rectum'], ['procto-', 'anus and rectum'],
-      ['pancreat-', 'pancreas'], ['pancreato-', 'pancreas'], ['splen-', 'spleen'], ['spleno-', 'spleen'],
-      ['hepat-', 'liver'], ['hepato-', 'liver'], ['cholecyst-', 'gallbladder'], ['cholecysto-', 'gallbladder'],
-      ['cholangi-', 'bile duct'], ['chol-angio-', 'bile duct'], ['choledoch-', 'common bile duct'],
-      ['choledocho-', 'common bile duct'], ['nephr-', 'kidney'], ['nephro-', 'kidney'],
-      ['lith-', 'stone'], ['litho-', 'stone'], ['calcul-', 'stone'], ['calculo-', 'stone'],
-      ['urol-', 'urine or urinary tract'], ['uro-', 'urine or urinary tract'], ['ur-', 'urine'],
-      ['pyel-', 'renal pelvis'], ['pyelo-', 'renal pelvis'], ['nephron-', 'nephron, kidney filtering unit'],
-      ['glomerul-', 'glomerulus, kidney filtering unit'],
-      ['glomerulo-', 'glomerulus, kidney filtering unit'], ['tubul-', 'tube or kidney tubule'],
-      ['tubulo-', 'tube or kidney tubule'], ['cort-', 'outer region or cortex'], ['cortico-', 'cortex'],
-      ['medull-', 'inner region or medulla'], ['medullo-', 'medulla'], ['juxtaglomerul-', 'next to a glomerulus'],
-      ['ren-', 'kidney'], ['reno-', 'kidney'], ['ureter-', 'ureter'], ['uretero-', 'ureter'],
-      ['urethr-', 'urethra'], ['urethro-', 'urethra'], ['cyst-', 'bladder or sac'], ['cysto-', 'bladder or sac'],
-      ['vesic-', 'bladder'], ['vesico-', 'bladder'], ['prostat-', 'prostate'], ['prostato-', 'prostate'],
-      ['uter-', 'uterus'], ['utero-', 'uterus'], ['hyster-', 'uterus'], ['hystero-', 'uterus'],
-      ['salping-', 'fallopian tube'], ['salpingo-', 'fallopian tube'], ['oophor-', 'ovary'],
-      ['oophoro-', 'ovary'], ['ovar-', 'ovary'], ['ovario-', 'ovary'], ['orchid-', 'testis'],
-      ['orchido-', 'testis'], ['test-', 'testis'], ['testo-', 'testis'], ['mammary', 'breast'],
-      ['alveol-', 'small air sac or tooth socket'], ['alveolo-', 'small air sac or tooth socket'],
-      ['pleur-', 'pleura'], ['pleuro-', 'pleura'], ['bronch-', 'bronchus'], ['broncho-', 'bronchus'],
-      ['trache-', 'trachea'], ['tracheo-', 'trachea'], ['larynx', 'larynx'], ['pulmon-', 'lung'],
-      ['pulmono-', 'lung'], ['aort-', 'aorta'], ['aorto-', 'aorta'], ['arteri-', 'artery'],
-      ['arterio-', 'artery'], ['phleb-', 'vein'], ['phlebo-', 'vein'], ['ven-', 'vein'],
-      ['veno-', 'vein'], ['capill-', 'capillary'], ['capillo-', 'capillary'], ['coron-', 'heart or crown'],
-      ['coronary', 'heart artery'], ['myocard-', 'heart muscle'], ['myocardio-', 'heart muscle'],
-      ['pericard-', 'sac around the heart'], ['pericardio-', 'sac around the heart'],
-      ['endocard-', 'inner lining of the heart'], ['endocardio-', 'inner lining of the heart'],
-      ['retin-', 'retina'], ['retino-', 'retina'], ['irid-', 'iris'], ['irido-', 'iris'],
-      ['ocul-', 'eye'], ['oculo-', 'eye'], ['optic-', 'vision or optic nerve'], ['optico-', 'vision or optic nerve'],
-      ['blephar-', 'eyelid'], ['blepharo-', 'eyelid'], ['dacry-', 'tear duct'], ['dacryo-', 'tear duct'],
-      ['gloss-', 'tongue'], ['glosso-', 'tongue'], ['stomat-', 'mouth'], ['stomato-', 'mouth'],
-      ['odont-', 'tooth'], ['odonto-', 'tooth'], ['gingiv-', 'gum'], ['gingivo-', 'gum'],
-      ['sial-', 'salivary gland'], ['sialo-', 'salivary gland'], ['otorrhino-', 'ear, nose, and throat'],
-      ['femor-', 'thigh bone'], ['femoro-', 'thigh bone'], ['patell-', 'kneecap'], ['patello-', 'kneecap'],
-      ['tibi-', 'shin bone'], ['tibio-', 'shin bone'], ['fibul-', 'fibula'], ['fibulo-', 'fibula'],
-      ['tars-', 'ankle bones'], ['tarso-', 'ankle bones'], ['metatars-', 'foot bones'],
-      ['metatarso-', 'foot bones'], ['metacarp-', 'hand bones'], ['metacarpo-', 'hand bones'],
-      ['phalange-', 'finger or toe bone'], ['phalang-', 'finger or toe bone'], ['phalango-', 'finger or toe bone'],
-      ['radius', 'radius, forearm bone'], ['radial-', 'radius or ray'], ['uln-', 'ulna, forearm bone'],
-      ['ulno-', 'ulna, forearm bone'], ['carp-', 'wrist bones'], ['carpo-', 'wrist bones'],
-      ['osteoblast-', 'bone-forming cell'], ['osteoclast-', 'bone-resorbing cell'], ['synov-', 'joint lining fluid'],
-      ['synovi-', 'joint lining fluid'], ['menisc-', 'crescent-shaped cartilage'], ['menisco-', 'crescent-shaped cartilage'],
-      ['cartilag-', 'cartilage'], ['cartilago-', 'cartilage'], ['clast-', 'breaking or breaking down'],
-      ['vascul-', 'blood vessel'], ['vasculo-', 'blood vessel'],
-      ['cholester-', 'cholesterol'], ['cholesterol', 'cholesterol'], ['sterol', 'fat-like substance'],
-      ['chole-', 'bile'], ['lipid', 'fat'], ['lipo-', 'fat'], ['adipo-', 'fat'],
-      ['gluco-', 'glucose, sugar'], ['glyco-', 'glucose, sugar'], ['sacchar-', 'sugar'],
-      ['protein', 'protein'], ['proteo-', 'protein'], ['amino-', 'amino acid'],
-      ['enzym-', 'enzyme'], ['enzymo-', 'enzyme'], ['hormone', 'hormone'], ['hormon-', 'hormone'],
-      ['immun-', 'immune system'], ['immuno-', 'immune system'], ['lympho-', 'lymph'],
-      ['cyt-', 'cell'], ['cyto-', 'cell'], ['nucle-', 'nucleus'], ['nucleo-', 'nucleus'],
-      ['gen-', 'origin or production'], ['geno-', 'origin or production'], ['chrom-', 'color'],
-      ['chromato-', 'color'], ['hist-', 'tissue'], ['histo-', 'tissue'], ['sarc-', 'flesh'],
-      ['sarco-', 'flesh'], ['carcin-', 'cancer'], ['carcino-', 'cancer'], ['onco-', 'tumor'],
-      ['necr-', 'death'], ['necro-', 'death'], ['myc-', 'fungus'], ['myco-', 'fungus'],
-      ['bacter-', 'bacteria'], ['bacterio-', 'bacteria'], ['vir-', 'virus'], ['viro-', 'virus'],
-      ['path-', 'disease'], ['patho-', 'disease'], ['toxic-', 'poison'], ['toxico-', 'poison'],
-      ['pharmaco-', 'drug, medicine'], ['phag-', 'eating'], ['phago-', 'eating'],
-      ['blast-', 'bud, germ'], ['blasto-', 'bud, germ'], ['plasm-', 'formation or substance'],
-      ['plasmo-', 'formation or substance'], ['morph-', 'shape'], ['morpho-', 'shape'],
-      ['electro-', 'electrical activity'], ['therm-', 'heat'], ['thermo-', 'heat'],
-      ['hydro-', 'water or fluid'], ['hydr-', 'water or fluid'], ['aqua-', 'water'],
-      ['aer-', 'air'], ['aero-', 'air'], ['bar-', 'pressure'], ['baro-', 'pressure'],
-      ['ton-', 'pressure or muscle tone'], ['tono-', 'pressure or muscle tone'], ['sphygm-', 'pulse'],
-      ['sphygmo-', 'pulse'], ['cry-', 'cold'], ['cryo-', 'cold'], ['pyret-', 'fever'],
-      ['pyreto-', 'fever'], ['pyro-', 'heat or fire'], ['photo-', 'light'], ['phon-', 'sound'],
-      ['radio-', 'radiation'], ['crypto-', 'hidden'],
-      ['melan-', 'black or dark'], ['melano-', 'black or dark'], ['leuk-', 'white'], ['leuko-', 'white'],
-      ['erythr-', 'red'], ['erythro-', 'red'], ['cyan-', 'blue'], ['cyano-', 'blue'],
-      ['xanth-', 'yellow'], ['xantho-', 'yellow'], ['chlor-', 'green'], ['chloro-', 'green'],
-      ['pachy-', 'thick'], ['brachy-', 'short'], ['dolicho-', 'long'], ['mega-', 'large'],
-      ['megalo-', 'large'], ['oligo-', 'few or scanty'], ['hetero-', 'different'], ['homo-', 'same'],
-      ['iso-', 'equal or same'], ['allo-', 'other or different'], ['auto-', 'self'],
-      ['multi-', 'many'], ['pan-', 'all'], ['para-', 'beside, beyond, or abnormal'],
-      ['apo-', 'away from'], ['meta-', 'change or beyond'], ['ana-', 'up, back, or again'],
-      ['cata-', 'down or completely'], ['dia-', 'through or apart'], ['syn-', 'together'],
-      ['eu-', 'good, normal, or easy'], ['neo-', 'new'], ['ortho-', 'straight or correct'],
-      ['adren-', 'adrenal gland'], ['adreno-', 'adrenal gland'], ['pituitar-', 'pituitary gland'],
-      ['pituitaro-', 'pituitary gland'], ['thyroid-', 'thyroid gland'], ['thyro-', 'thyroid gland'],
-      ['parathyroid-', 'parathyroid gland'], ['thym-', 'thymus gland'], ['thymo-', 'thymus gland'],
-      ['islet-', 'pancreatic islet'], ['islets-', 'pancreatic islet'], ['endocrin-', 'endocrine gland'],
-      ['endocrino-', 'endocrine gland'], ['gonad-', 'reproductive gland'], ['gonado-', 'reproductive gland'],
-      ['pod-', 'foot'], ['podo-', 'foot'], ['ped-', 'foot or child'], ['pedo-', 'foot or child'],
-      ['cheir-', 'hand'], ['cheiro-', 'hand'], ['manu-', 'hand'], ['brachi-', 'arm'], ['brachio-', 'arm'],
-      ['acromi-', 'extremity or shoulder tip'], ['acromio-', 'extremity or shoulder tip'],
-      ['kerat-', 'horny tissue or cornea'], ['kerato-', 'horny tissue or cornea'], ['cutane-', 'skin'],
-      ['cutaneo-', 'skin'], ['hidr-', 'sweat'], ['hidro-', 'sweat'], ['seb-', 'sebum, oil'],
-      ['sebo-', 'sebum, oil'], ['trich-', 'hair'], ['tricho-', 'hair'], ['onych-', 'nail'],
-      ['onycho-', 'nail'], ['ungui-', 'nail'], ['melan-', 'pigment'], ['melano-', 'pigment'],
-      ['ather-', 'fatty plaque'], ['athero-', 'fatty plaque'], ['phren-', 'diaphragm or mind'],
-      ['phreno-', 'diaphragm or mind'], ['valv-', 'valve'], ['valvo-', 'valve'], ['vas-', 'vessel'],
-      ['vaso-', 'vessel'], ['venul-', 'small vein'], ['venulo-', 'small vein'], ['lymphaden-', 'lymph node'],
-      ['lymphadeno-', 'lymph node'], ['reticul-', 'network'], ['reticulo-', 'network'],
-      ['immunoglobulin-', 'immune protein'], ['globulin-', 'blood protein'], ['globin-', 'blood protein'],
-      ['albumin-', 'blood protein'], ['fibrin-', 'blood-clotting protein'], ['fibrino-', 'blood-clotting protein'],
-      ['septic-', 'infection or decay'], ['septo-', 'partition or infection'], ['tox-', 'poison'],
-      ['toxo-', 'poison'], ['sequestr-', 'separated or dead tissue'], ['sequestro-', 'separated or dead tissue'],
-      ['pleg-', 'paralysis'], ['kinesi-', 'movement'], ['kinesio-', 'movement'], ['mnes-', 'memory'],
-      ['mnemo-', 'memory'], ['esthes-', 'sensation'], ['esthesio-', 'sensation'], ['phob-', 'fear'],
-      ['phobo-', 'fear'], ['phil-', 'attraction or affinity'], ['philo-', 'attraction or affinity'],
-      ['psych-', 'mind'], ['psycho-', 'mind'], ['somat-', 'body'], ['somato-', 'body'],
-      ['top-', 'place'], ['topo-', 'place'], ['trop-', 'turning or affinity'], ['tropo-', 'turning or affinity'],
-      ['chron-', 'time'], ['chrono-', 'time'], ['genet-', 'origin or heredity'], ['geneti-', 'origin or heredity'],
-      ['kary-', 'nucleus'], ['karyo-', 'nucleus'], ['tel-', 'end'], ['telo-', 'end'],
-      ['scler-', 'hard'], ['sclero-', 'hardness'], ['sten-', 'narrow'], ['steno-', 'narrow'],
-      ['dilat-', 'widening'], ['dilato-', 'widening'], ['spasm-', 'spasm'], ['spasmo-', 'spasm'],
-      ['tromb-', 'blood clot'], ['thromb-', 'blood clot'], ['thrombo-', 'blood clot'],
-      ['ophthalm-', 'eye'], ['pneumo-', 'air, lung'], ['hyper-', 'above, beyond, excessive'],
-      ['hypo-', 'under, deficient'], ['brady-', 'slow'], ['micro-', 'small'],
-      ['macro-', 'large, long, big'], ['poly-', 'many, excessive'], ['mono-', 'one'],
-      ['bi-', 'two'], ['tri-', 'three'], ['anti-', 'against'],
-      ['dys-', 'difficult, abnormal'], ['mal-', 'bad, abnormal'], ['pseudo-', 'false'],
-      ['peri-', 'around'], ['endo-', 'within; inner'], ['ecto-', 'outer; outside'],
-      ['intra-', 'within'], ['inter-', 'between'], ['sub-', 'under'],
-      ['super-', 'above'], ['pre-', 'before, in front'], ['post-', 'behind, after'],
-      ['-ology', 'study of'], ['-logy', 'study of'], ['-itis', 'inflammation'],
-      ['-olemia', 'blood condition involving a substance'],
-      ['-ia', 'condition'], ['-osis', 'condition, usually abnormal'], ['-iasis', 'condition, formation of'],
-      ['-ism', 'condition or process'], ['-oma', 'tumor'], ['-emia', 'blood condition'],
-      ['-ac', 'pertaining to'], ['-blast', 'bud, germ'], ['-blasto', 'bud, germ'],
-      ['-blastic', 'bud, germ'], ['-cyte', 'cell'], ['-cytic', 'cell'],
-      ['-esthesio', 'sensation'], ['-ites', 'inflammation'], ['-sis', 'condition'],
-      ['-algia', 'pain'], ['-dynia', 'pain, swelling'], ['-odyn', 'pain'], ['-cele', 'bulge'],
-      ['-ectasis', 'expansion or dilation'], ['-emesis', 'vomiting'], ['-malacia', 'softening'],
-      ['-megaly', 'enlargement'], ['-penia', 'deficiency, lack of'], ['-sclerosis', 'hardening'],
-      ['-stasis', 'level, unchanging'], ['-spasm', 'muscle condition'], ['-taxis', 'movement'], ['-trophy', 'growth'],
-      ['-plasia', 'growth'], ['-plastic', 'growth'], ['-plegia', 'paralysis'], ['-praxia', 'movement'],
-      ['-pnea', 'breathing'], ['-phagia', 'eating, swallowing'], ['-phasia', 'speech'],
-      ['-phobia', 'fear'], ['-philia', 'attraction or affinity'], ['-kinesia', 'movement'],
-      ['-mnesia', 'memory'], ['-esthesia', 'sensation'], ['-oxia', 'oxygen condition'],
-      ['-capnia', 'carbon dioxide condition'], ['-pepsia', 'digestion'], ['-genesis', 'formation or origin'],
-      ['-genic', 'producing or produced by'], ['-genous', 'produced by or originating in'],
-      ['-logist', 'specialist who studies'], ['-iatry', 'medical treatment'], ['-iatric', 'medical treatment'],
-      ['-poiesis', 'production'], ['-ptosis', 'falling, drooping'], ['-oid', 'resembling'],
-      ['-pathy', 'disease'], ['-lysis', 'break down, destruction, dissolving'], ['-lytic', 'break down, destruction, dissolving'],
-      ['-rrhea', 'flow or discharge'], ['-rrhage', 'bleeding'], ['-rrhaphy', 'suture'],
-      ['-ectomy', 'cut out, removal'], ['-centesis', 'surgical puncture to remove fluid'],
-      ['-desis', 'surgical binding'], ['-otomy', 'incision'], ['-ostomy', 'surgical opening'],
-      ['-pexy', 'surgical fixation'], ['-plasty', 'surgical reconstruction'], ['-opsy', 'visual examination'],
-      ['-gram', 'recording, written'], ['-graph', 'recording, written'], ['-graphy', 'recording, written'],
-      ['-meter', 'device used for measuring'], ['-metry', 'measurement of'],
-      ['-scopy', 'examine, for examining'], ['-scope', 'examine, for examining'],
-      ['-tomy', 'cutting; incision'], ['-tripsy', 'crushing'], ['-uria', 'in the urine'],
-      ['-ium', 'structure or tissue'], ['-ous', 'pertaining to'], ['-ity', 'pertaining to'],
-      ['-al', 'pertaining to'], ['-eal', 'pertaining to'], ['-ial', 'pertaining to'], ['-ic', 'pertaining to']
-    ].map(([part, definition]) => ({ part, word: normalize(part), definition }));
-    const overrides = JSON.parse(localStorage.getItem('medicalTermOverrides') || '{}');
-    let wordFileHandle = null;
-    let externalWordParts = [];
+    const wordParts = wordPartData.map(({ part, definition }) => ({ part, word: normalize(part), definition }));
 
     function normalize(value) {
       return value.toLowerCase().replace(/[^a-z]/g, '');
@@ -710,88 +498,7 @@
       return boundaries;
     }
 
-    function parseWordFile(text) {
-      try {
-        const parsed = JSON.parse(text);
-        const entries = Array.isArray(parsed) ? parsed : Object.entries(parsed).map(([part, definition]) => ({ part, definition }));
-        return entries
-          .map((entry) => ({ part: String(entry.part || entry.word || '').trim(), definition: String(entry.definition || '').trim() }))
-          .filter((entry) => entry.part && entry.definition);
-      } catch (error) {
-        return text.split(/\r?\n/)
-          .map((line) => line.trim())
-          .filter((line) => line && !line.startsWith('#'))
-          .map((line) => line.split(/\t|\s{2,}|\s+-\s+/))
-          .filter((columns) => columns.length >= 2 && columns[0].trim() && columns.slice(1).join(' ').trim())
-          .map(([part, ...definition]) => ({ part: part.trim(), definition: definition.join(' ').trim() }));
-      }
-    }
-
-    function addExternalWordParts(entries) {
-      externalWordParts = entries.map(({ part, definition }) => ({
-        part,
-        word: normalize(part),
-        definition
-      }));
-      externalWordParts.forEach((entry) => {
-        const existingIndex = wordParts.findIndex((candidate) => candidate.word === entry.word);
-        if (existingIndex >= 0) wordParts[existingIndex] = entry;
-        else wordParts.push(entry);
-      });
-    }
-
-    function getWordFileText() {
-      const entries = new Map();
-      wordParts.forEach((entry) => entries.set(entry.word, { part: entry.part, definition: entry.definition }));
-      externalWordParts.forEach((entry) => entries.set(entry.word, { part: entry.part, definition: entry.definition }));
-      Object.values(manualBreakdowns).flat().forEach((segment) => {
-        if (!segment.entry?.word || !segment.entry.definition || segment.vowel) return;
-        entries.set(segment.entry.word, { part: segment.entry.part, definition: segment.entry.definition });
-      });
-      Object.entries(overrides).forEach(([key, value]) => {
-        const [term, segment] = key.split(':');
-        const override = getOverride(key);
-        if (!segment || !override?.definition) return;
-        const part = override.type === 'prefix' ? `${segment}-` : override.type === 'suffix' ? `-${segment}` : segment;
-        entries.set(normalize(part), { part, definition: override.definition });
-      });
-      return [...entries.values()]
-        .sort((first, second) => normalize(first.part).localeCompare(normalize(second.part)))
-        .map(({ part, definition }) => `${part}\t${definition}`)
-        .join('\n') + '\n';
-    }
-
-    async function writeWordFile() {
-      const text = getWordFileText();
-      if (wordFileHandle) {
-        const writable = await wordFileHandle.createWritable();
-        await writable.write(text);
-        await writable.close();
-        status.textContent = 'Vocabulary file updated.';
-        return;
-      }
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-      link.download = 'medical-word-parts.txt';
-      link.click();
-      URL.revokeObjectURL(link.href);
-      status.textContent = 'Updated vocabulary downloaded as medical-word-parts.txt.';
-    }
-
-    async function loadWordFile(file) {
-      if (!file) return;
-      addExternalWordParts(parseWordFile(await file.text()));
-      renderBreakdown();
-      status.textContent = `${externalWordParts.length} word part(s) loaded from ${file.name}.`;
-    }
-
     function segmentTerm(term) {
-      if (manualBreakdowns[term]) {
-        return manualBreakdowns[term].map((segment) => ({
-          ...segment,
-          entry: segment.entry ? { ...segment.entry } : null
-        }));
-      }
       const memo = new Map();
       function solve(position) {
         if (position === term.length) return { segments: [], score: 0 };
@@ -819,22 +526,7 @@
         return best;
       }
       const repaired = repairShortGuesses(solve(0).segments);
-      const merged = mergeUnknownInput.checked ? mergeUnknownSegments(repaired) : repaired;
-      return annotateLinkingVowels(merged);
-    }
-
-    function mergeUnknownSegments(segments) {
-      const merged = [];
-      segments.forEach((segment) => {
-        const previous = merged[merged.length - 1];
-        if (previous && !previous.entry && !previous.vowel && !segment.entry && !segment.vowel) {
-          previous.text += segment.text;
-          previous.guess = guessDefinition(previous.text, previous.text, 0);
-        } else {
-          merged.push({ ...segment });
-        }
-      });
-      return merged;
+      return annotateLinkingVowels(repaired);
     }
 
     function annotateLinkingVowels(segments) {
@@ -978,11 +670,8 @@
           renderedTermLength += segment.text.length;
           return;
         }
-        const key = `${term}:${segment.text}`;
-        const savedOverride = getOverride(key);
-        const definition = savedOverride?.definition || segment.entry?.definition;
-        const savedType = savedOverride?.type;
-        const segmentType = savedType || getSegmentType(segments, index);
+        const definition = segment.entry?.definition;
+        const segmentType = getSegmentType(segments, index);
         if (displayedPartCount > 0) {
           const plus = document.createElement('span');
           plus.className = 'plus';
@@ -1011,9 +700,6 @@
           partCell.textContent = segment.entry ? segment.entry.part : segment.text;
           definitionCell.textContent = definition;
           definitions.push(definition);
-          if (editTermsInput.checked) {
-            addDefinitionEditor(definitionCell, key, definition, segment.text, segmentType);
-          }
         } else {
           partCell.textContent = `${segment.text} (guessed)`.trim();
           definitionCell.innerHTML = '';
@@ -1025,9 +711,6 @@
           inferenceNote.className = 'note';
           inferenceNote.textContent = 'Inferred from spelling, position, and nearby word parts.';
           definitionCell.append(document.createElement('br'), inferenceNote);
-          if (!editTermsInput.checked) {
-            addDefinitionEditor(definitionCell, key, segment.guess, segment.text, segmentType);
-          }
           definitions.push(segment.guess);
           hasUnmatched = true;
         }
@@ -1041,90 +724,6 @@
       summary.textContent = hasUnmatched
         ? 'Inferred parts use reusable medical morphology and word position. Add an override when you know a more precise definition.'
         : `Definitions combined: ${definitions.join(' + ')}.`;
-      if (editTermsInput.checked) addStructureEditor(term, segments);
-    }
-
-    function addStructureEditor(term, segments) {
-      termDisplay.replaceChildren();
-      const editor = document.createElement('div');
-      editor.className = 'structure-editor';
-      const workingSegments = segments.map((segment) => ({ ...segment }));
-
-      function renderEditorRows() {
-        editor.querySelectorAll('.editor-row').forEach((row) => row.remove());
-        workingSegments.forEach((segment, index) => {
-          const row = document.createElement('div');
-          row.className = 'editor-row';
-          const textInput = document.createElement('input');
-          textInput.value = segment.text;
-          textInput.setAttribute('aria-label', `Segment ${index + 1}`);
-          const type = segment.editorType || getSegmentType(workingSegments, index);
-          const typePicker = createTypePicker(type, `Type for segment ${index + 1}`, (nextType) => { segment.editorType = nextType; });
-          const definitionInput = document.createElement('input');
-          definitionInput.value = segment.editorDefinition || getOverride(`${term}:${segment.text}`)?.definition || segment.entry?.definition || segment.guess || '';
-          definitionInput.placeholder = 'Definition';
-          definitionInput.setAttribute('aria-label', `Definition for segment ${index + 1}`);
-          const removeButton = document.createElement('button');
-          removeButton.className = 'remove-segment';
-          removeButton.type = 'button';
-          removeButton.textContent = 'Remove';
-          removeButton.addEventListener('click', () => {
-            workingSegments.splice(index, 1);
-            renderEditorRows();
-          });
-          row.append(textInput, typePicker, definitionInput, removeButton);
-          editor.append(row);
-          textInput.addEventListener('input', () => { segment.text = normalize(textInput.value); });
-          definitionInput.addEventListener('input', () => { segment.editorDefinition = definitionInput.value; });
-        });
-      }
-
-      const actionBar = document.createElement('div');
-      actionBar.className = 'editor-actions';
-      ['Add prefix', 'Add root', 'Add suffix'].forEach((label) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.textContent = label;
-        button.addEventListener('click', () => {
-          workingSegments.push({ text: '', entry: null, guess: '', editorType: label.slice(4).toLowerCase(), editorDefinition: '' });
-          renderEditorRows();
-        });
-        actionBar.append(button);
-      });
-      const saveButton = document.createElement('button');
-      saveButton.type = 'button';
-      saveButton.textContent = 'Save breakdown';
-      saveButton.addEventListener('click', () => {
-        const normalizedParts = workingSegments.filter((segment) => segment.text).map((segment, index) => {
-          const text = normalize(segment.text);
-          const type = segment.editorType || getSegmentType(workingSegments, index);
-          const definition = segment.editorDefinition || segment.guess || guessDefinition(text, term, 0);
-          const knownEntry = findExactPart(text);
-          const entry = type === 'linking vowel' ? null : knownEntry
-            ? { ...knownEntry, definition: segment.editorDefinition || knownEntry.definition }
-            : {
-              part: type === 'prefix' ? `${text}-` : type === 'suffix' ? `-${text}` : text,
-              word: text,
-              definition
-            };
-          if (entry && segment.editorDefinition) entry.definition = definition;
-          return { text, entry, guess: definition, vowel: type === 'linking vowel', editorType: type, editorDefinition: segment.editorDefinition || '' };
-        });
-        if (!normalizedParts.length) return;
-        saveManualBreakdown(term, normalizedParts);
-        renderBreakdown();
-      });
-      actionBar.append(saveButton);
-      editor.append(actionBar);
-      renderEditorRows();
-      termDisplay.append(editor);
-    }
-
-    function getPartType(entry) {
-      const part = entry.part.trim();
-      if (part.startsWith('-')) return 'suffix';
-      if (part.endsWith('-')) return 'prefix';
-      return 'root';
     }
 
     function getSegmentType(segments, index) {
@@ -1140,185 +739,12 @@
       return 'root';
     }
 
-    function getOverride(key) {
-      const value = overrides[key];
-      if (!value) return null;
-      return typeof value === 'string' ? { definition: value, type: 'root' } : value;
-    }
-
-    function addDefinitionEditor(container, key, definition, part, type) {
-      const editor = document.createElement('div');
-      editor.className = 'override';
-      const input = document.createElement('input');
-      input.value = getOverride(key)?.definition || '';
-      input.placeholder = definition;
-      input.title = `Current definition: ${definition}`;
-      input.setAttribute('aria-label', `Definition for ${part}`);
-      let selectedType = type;
-      const typePicker = createTypePicker(type, `Type for ${part}`, (nextType) => { selectedType = nextType; });
-      const saveButton = document.createElement('button');
-      saveButton.type = 'button';
-      saveButton.textContent = 'Save';
-      saveButton.addEventListener('click', async () => {
-        const nextDefinition = input.value.trim() || input.placeholder;
-        overrides[key] = { definition: nextDefinition, type: selectedType };
-        localStorage.setItem('medicalTermOverrides', JSON.stringify(overrides));
-        renderBreakdown();
-        if (wordFileHandle) {
-          try {
-            await writeWordFile();
-          } catch (error) {
-            status.textContent = 'Saved locally, but the vocabulary file could not be updated.';
-          }
-        }
-      });
-      editor.append(input, typePicker, saveButton);
-      container.append(document.createElement('br'), editor);
-    }
-
-    function createTypePicker(selectedType, label, onChange) {
-      const picker = document.createElement('div');
-      picker.className = 'type-picker';
-      const toggle = document.createElement('button');
-      toggle.type = 'button';
-      toggle.textContent = selectedType[0].toUpperCase() + selectedType.slice(1);
-      toggle.setAttribute('aria-label', label);
-      toggle.setAttribute('aria-expanded', 'false');
-      const menu = document.createElement('div');
-      menu.className = 'type-menu';
-      ['prefix', 'root', 'suffix', 'linking vowel'].forEach((type) => {
-        const option = document.createElement('button');
-        option.type = 'button';
-        option.textContent = type[0].toUpperCase() + type.slice(1);
-        option.addEventListener('click', () => {
-          toggle.textContent = option.textContent;
-          picker.classList.remove('open');
-          toggle.setAttribute('aria-expanded', 'false');
-          onChange(type);
-        });
-        menu.append(option);
-      });
-      toggle.addEventListener('click', () => {
-        const isOpen = picker.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', String(isOpen));
-      });
-      picker.append(toggle, menu);
-      return picker;
-    }
-
-    function addSegmentActions(container, term, segments, index) {
-      const actions = document.createElement('div');
-      actions.className = 'segment-actions';
-      const choices = [
-        { label: 'Merge previous', offset: -1 },
-        { label: 'Merge next', offset: 1 }
-      ];
-      choices.forEach(({ label, offset }) => {
-        const adjacent = segments[index + offset];
-        if (!adjacent || adjacent.entry || adjacent.vowel) return;
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.textContent = label;
-        button.addEventListener('click', () => {
-          const first = Math.min(index, index + offset);
-          const second = Math.max(index, index + offset);
-          segments.splice(first, 2, {
-            text: segments[first].text + segments[second].text,
-            entry: null,
-            guess: guessDefinition(segments[first].text + segments[second].text, term, 0)
-          });
-          saveManualBreakdown(term, segments);
-          renderBreakdown();
-        });
-        actions.append(button);
-      });
-
-      if (segments[index].text.length > 1) {
-        const splitInput = document.createElement('input');
-        splitInput.type = 'number';
-        splitInput.min = '1';
-        splitInput.max = String(segments[index].text.length - 1);
-        splitInput.placeholder = 'Position';
-        splitInput.setAttribute('aria-label', `Split ${segments[index].text} after character`);
-        const splitButton = document.createElement('button');
-        splitButton.type = 'button';
-        splitButton.textContent = 'Split here';
-        splitButton.addEventListener('click', () => {
-          const splitAt = Number.parseInt(splitInput.value, 10);
-          if (!Number.isInteger(splitAt) || splitAt < 1 || splitAt >= segments[index].text.length) return;
-          const text = segments[index].text;
-          segments.splice(index, 1,
-            { text: text.slice(0, splitAt), entry: findExactPart(text.slice(0, splitAt)), guess: guessDefinition(text.slice(0, splitAt), term, 0) },
-            { text: text.slice(splitAt), entry: findExactPart(text.slice(splitAt)), guess: guessDefinition(text.slice(splitAt), term, splitAt) }
-          );
-          saveManualBreakdown(term, segments);
-          renderBreakdown();
-        });
-        actions.append(splitInput, splitButton);
-      }
-      if (!segments[index].entry) {
-        const vowelButton = document.createElement('button');
-        vowelButton.type = 'button';
-        vowelButton.textContent = 'Mark as linking vowel';
-        vowelButton.addEventListener('click', () => {
-          segments[index].vowel = true;
-          segments[index].guess = 'linking vowel';
-          saveManualBreakdown(term, segments);
-          renderBreakdown();
-        });
-        actions.append(vowelButton);
-      }
-      container.append(actions);
-    }
-
-    function saveManualBreakdown(term, segments) {
-      manualBreakdowns[term] = segments.map((segment) => ({
-        text: segment.text,
-        entry: segment.entry ? { ...segment.entry } : null,
-        guess: segment.guess,
-        vowel: Boolean(segment.vowel),
-        editorType: segment.editorType || null
-      }));
-      localStorage.setItem('medicalTermBreakdowns', JSON.stringify(manualBreakdowns));
-      if (wordFileHandle) {
-        writeWordFile().catch(() => {
-          status.textContent = 'Saved locally, but the vocabulary file could not be updated.';
-        });
-      }
-    }
-
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       renderBreakdown();
       speakTerm();
     });
     speakTermButton.addEventListener('click', speakTerm);
-    mergeUnknownInput.addEventListener('change', renderBreakdown);
-    editTermsInput.addEventListener('change', renderBreakdown);
-    wordFileInput.addEventListener('change', () => loadWordFile(wordFileInput.files[0]));
-    loadWordFileButton.addEventListener('click', async () => {
-      if (window.showOpenFilePicker) {
-        try {
-          [wordFileHandle] = await window.showOpenFilePicker({
-            types: [{ description: 'Medical word parts', accept: { 'text/plain': ['.txt'], 'application/json': ['.json'] } }],
-            multiple: false
-          });
-          await loadWordFile(await wordFileHandle.getFile());
-          return;
-        } catch (error) {
-          if (error.name === 'AbortError') return;
-        }
-      }
-      wordFileInput.click();
-    });
-    saveWordFileButton.addEventListener('click', async () => {
-      try {
-        await writeWordFile();
-      } catch (error) {
-        status.textContent = 'Could not update the vocabulary file.';
-      }
-    });
-
     status.textContent = `${wordParts.length} built-in word parts ready`;
     renderBreakdown();
   </script>
